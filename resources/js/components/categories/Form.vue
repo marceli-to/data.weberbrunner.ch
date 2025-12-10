@@ -100,7 +100,7 @@ onMounted(fetchCategory);
         </div>
 
         <div v-else class="max-w-xl">
-            <div class="bg-gray-50 p-4 rounded-sm">
+            <div class="bg-gray-50 p-4 pt-2 rounded-sm">
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>

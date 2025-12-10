@@ -223,8 +223,8 @@ onMounted(() => {
             <!-- Main Content -->
             <div class="col-span-2 space-y-12">
                 <!-- Basic Info -->
-                <div class="bg-gray-50 p-4 rounded-sm">
-                    <h2 class="text-lg font-medium text-gray-900 mb-4">Grunddaten</h2>
+                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Daten</h2>
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Titel</label>
@@ -273,7 +273,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Text Blocks -->
-                <div class="bg-gray-50 p-4 rounded-sm">
+                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-medium text-gray-900">Textblöcke</h2>
                         <button
@@ -318,7 +318,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Images -->
-                <div class="bg-gray-50 p-4 rounded-sm">
+                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-medium text-gray-900">Bilder ({{ project.images.length }})</h2>
                         <button
@@ -377,7 +377,7 @@ onMounted(() => {
             <!-- Sidebar -->
             <div class="space-y-6">
                 <!-- Publish Status -->
-                <div class="bg-gray-50 p-4 rounded-sm">
+                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
                     <h2 class="text-lg font-medium text-gray-900 mb-4">Veröffentlichung</h2>
                     <div class="space-y-2">
                         <label class="flex items-center gap-3 cursor-pointer">
@@ -402,7 +402,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Categories -->
-                <div class="bg-gray-50 p-4 rounded-sm">
+                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
                     <h2 class="text-lg font-medium text-gray-900 mb-4">Kategorien</h2>
                     <div class="space-y-2">
                         <label
