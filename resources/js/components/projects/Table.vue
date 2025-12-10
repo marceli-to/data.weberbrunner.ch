@@ -1,8 +1,8 @@
 <script setup>
-import { ref, computed, onMounted, inject } from 'vue';
+import { ref, computed, onMounted, onUnmounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import { PhPencilSimple, PhTrash, PhFunnelSimple, PhImage, PhCaretLeft, PhCaretRight } from '@phosphor-icons/vue';
+import { PhPencilSimple, PhTrash, PhFunnelSimple, PhImage, PhCaretLeft, PhCaretRight, PhMagnifyingGlass, PhCommand } from '@phosphor-icons/vue';
 import Filters from '../lightbox/Filters.vue';
 
 const router = useRouter();
@@ -12,6 +12,9 @@ const projects = ref([]);
 const categories = ref([]);
 const loading = ref(true);
 const showFilters = ref(false);
+const searchQuery = ref('');
+const searchInput = ref(null);
+const isSearchFocused = ref(false);
 
 // Load filters from localStorage or use defaults
 const storedFilters = localStorage.getItem('projectFilters');
@@ -48,6 +51,7 @@ const fetchProjects = async (page = 1) => {
         if (filters.value.status) params.append('status', filters.value.status);
         if (filters.value.year) params.append('year', filters.value.year);
         if (filters.value.publish_status) params.append('publish_status', filters.value.publish_status);
+        if (searchQuery.value) params.append('search', searchQuery.value);
 
         const response = await axios.get(`/api/projects?${params.toString()}`);
         projects.value = response.data.data;
@@ -134,6 +138,27 @@ const activeFilterCount = computed(() => {
     return Object.values(filters.value).filter(v => v !== '').length;
 });
 
+// Search
+let searchTimeout = null;
+const onSearchInput = () => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        fetchProjects(1);
+    }, 300);
+};
+
+const handleKeydown = (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInput.value?.focus();
+    }
+    if (e.key === 'Escape' && isSearchFocused.value) {
+        searchQuery.value = '';
+        searchInput.value?.blur();
+        fetchProjects(1);
+    }
+};
+
 
 const visiblePages = computed(() => {
     const current = pagination.value.currentPage;
@@ -163,20 +188,50 @@ onMounted(() => {
     fetchProjects(pagination.value.currentPage);
     fetchCategories();
     fetchFilterOptions();
+    window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeydown);
 });
 </script>
 
 <template>
     <div class="flex-1 container mx-auto p-6" :class="{ 'pb-20': pagination.lastPage > 1 }">
         <!-- Header -->
-        <div class="mb-8 flex justify-between items-start">
+        <div class="mb-8 flex justify-between items-start relative">
             <div>
                 <h1 class="text-2xl font-semibold text-black mb-1">Projekte</h1>
                 <p class="text-sm text-gray-500">{{ pagination.total }} Projekte</p>
             </div>
+            
+            <!-- Search -->
+            <div class="absolute left-1/2 top-0 -translate-x-1/2">
+                <div class="relative">
+                    <PhMagnifyingGlass class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                        ref="searchInput"
+                        v-model="searchQuery"
+                        @input="onSearchInput"
+                        @focus="isSearchFocused = true"
+                        @blur="isSearchFocused = false"
+                        type="text"
+                        placeholder="Suchen..."
+                        class="w-64 h-[38px] pl-9 pr-16 text-sm border border-gray-300 rounded-sm focus:outline-none focus:border-black transition-colors"
+                    />
+                    <div 
+                        v-if="!isSearchFocused && !searchQuery"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-1.5 py-1 bg-gray-100 rounded text-xs text-gray-500"
+                    >
+                        <PhCommand class="w-3 h-3" />
+                        <span>K</span>
+                    </div>
+                </div>
+            </div>
+            
             <button
                 @click="showFilters = true"
-                class="bg-white border border-gray-400 text-black text-sm px-3 py-2 hover:bg-gray-100 transition-colors cursor-pointer rounded-sm flex items-center gap-2"
+                class="bg-white border border-gray-300 text-black text-sm px-3 py-2 hover:bg-gray-100 transition-colors cursor-pointer rounded-sm flex items-center gap-2"
             >
                 <PhFunnelSimple class="w-4 h-4" />
                 Filter
@@ -224,7 +279,14 @@ onMounted(() => {
                             </div>
                         </td>
                         <td class="py-4 px-2">
-                            <div class="text-sm font-medium text-black">{{ project.title }}</div>
+                            <div class="text-sm font-medium text-black">
+                              <button
+                                @click="editProject(project)"
+                                class="cursor-pointer hover:text-gray-600 text-left"
+                                title="Bearbeiten">
+                              {{ project.title }}
+                              </button>
+                            </div>
                         </td>
                         <td class="py-4 px-2 text-sm text-gray-500">
                             {{ project.year || '—' }}

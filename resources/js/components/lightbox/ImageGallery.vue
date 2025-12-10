@@ -1,17 +1,17 @@
 <template>
     <div
-        class="fixed inset-0 z-50 bg-black"
+        class="fixed inset-0 z-50 bg-black/90"
         @keydown="handleKeydown"
         tabindex="0"
     >
         <!-- Header -->
-        <div class="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-4 bg-gradient-to-b from-black/50 to-transparent">
+        <div class="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-6 py-4">
             <div class="text-white text-sm">
                 {{ currentIndex + 1 }} / {{ images.length }}
             </div>
             <button
                 @click="emit('close')"
-                class="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+                class="p-2 text-white/80 hover:text-black hover:bg-white rounded-full transition-colors cursor-pointer"
             >
                 <PhX class="w-6 h-6" />
             </button>
@@ -23,7 +23,7 @@
                 v-if="currentImage()"
                 :src="getImageUrl(currentImage())"
                 :alt="currentImage().alt || currentImage().filename"
-                class="max-w-full max-h-full object-contain"
+                class="max-w-full max-h-[70vh] object-contain bg-white"
             />
         </div>
 
@@ -39,35 +39,35 @@
         <!-- Navigation -->
         <button
             @click="prev"
-            class="absolute left-4 top-1/2 -translate-y-1/2 p-3 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+            class="absolute left-4 top-1/2 -translate-y-1/2 p-3 text-white/80 hover:text-black hover:bg-white rounded-full transition-colors cursor-pointer"
         >
             <PhCaretLeft class="w-8 h-8" />
         </button>
         <button
             @click="next"
-            class="absolute right-4 top-1/2 -translate-y-1/2 p-3 text-white/80 hover:text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+            class="absolute right-4 top-1/2 -translate-y-1/2 p-3 text-white/80 hover:text-black hover:bg-white rounded-full transition-colors cursor-pointer"
         >
             <PhCaretRight class="w-8 h-8" />
         </button>
 
         <!-- Thumbnails -->
-        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent py-4">
+        <div class="absolute bottom-0 left-0 right-0 py-4">
             <div class="flex items-center justify-center gap-2 px-4 overflow-x-auto">
                 <button
                     v-for="(image, index) in images"
                     :key="image.id"
                     @click="selectImage(index)"
                     :class="[
-                        'relative w-16 h-16 overflow-hidden shrink-0 transition-all cursor-pointer',
+                        'relative w-12 h-12 overflow-hidden shrink-0 transition-all cursor-pointer',
                         index === currentIndex
-                            ? 'ring-2 ring-white ring-offset-2 ring-offset-black'
+                            ? 'opacity-100'
                             : 'opacity-50 hover:opacity-100'
                     ]"
                 >
                     <img
                         :src="getImageUrl(image, 'thumbnail')"
                         :alt="image.alt || image.filename"
-                        class="w-full h-full object-cover"
+                        class="w-full h-full object-cover bg-white"
                     />
                     <div
                         v-if="image.is_featured"

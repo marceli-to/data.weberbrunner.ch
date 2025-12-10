@@ -136,7 +136,8 @@ const saveImage = async (image) => {
         await axios.put(`/api/projects/${project.value.id}/images/${image.id}`, image);
         const index = project.value.images.findIndex(i => i.id === image.id);
         if (index > -1) {
-            project.value.images[index] = image;
+            // Merge saved data with existing image to preserve filename, sizes, etc.
+            project.value.images[index] = { ...project.value.images[index], ...image };
         }
         // Update featured image if changed
         if (image.is_featured) {
@@ -198,8 +199,7 @@ onMounted(() => {
             <div class="flex items-center gap-4">
                 <button
                     @click="router.push({ name: 'projects.index' })"
-                    class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                >
+                    class="cursor-pointer text-gray-400 hover:text-gray-600 transition-colors">
                     <PhArrowLeft class="h-5 w-5" />
                 </button>
                 <h1 class="text-2xl font-semibold text-gray-900">
@@ -209,9 +209,8 @@ onMounted(() => {
             <button
                 @click="saveProject"
                 :disabled="saving"
-                class="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                class="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-sm hover:bg-gray-800 disabled:opacity-50 transition-colors"
             >
-                <PhFloppyDisk class="h-5 w-5" />
                 {{ saving ? 'Speichern...' : 'Speichern' }}
             </button>
         </div>
@@ -232,7 +231,7 @@ onMounted(() => {
                             <input
                                 v-model="project.title"
                                 type="text"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
                             />
                         </div>
                         <div>
@@ -240,7 +239,7 @@ onMounted(() => {
                             <input
                                 v-model="project.slug"
                                 type="text"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
                             />
                         </div>
                         <div class="grid grid-cols-2 gap-4">
@@ -250,7 +249,7 @@ onMounted(() => {
                                     v-model="project.year"
                                     type="text"
                                     maxlength="4"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
                                 />
                             </div>
                             <div>
@@ -258,7 +257,7 @@ onMounted(() => {
                                 <input
                                     v-model="project.status"
                                     type="text"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
                                 />
                             </div>
                         </div>
@@ -267,7 +266,7 @@ onMounted(() => {
                             <textarea
                                 v-model="project.steckbrief"
                                 rows="6"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-black focus:border-black"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
                             ></textarea>
                         </div>
                     </div>
@@ -279,7 +278,7 @@ onMounted(() => {
                         <h2 class="text-lg font-medium text-gray-900">Textblöcke</h2>
                         <button
                             @click="addTextBlock"
-                            class="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            class="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors"
                         >
                             <PhPlus class="h-4 w-4" />
                             Hinzufügen
@@ -288,11 +287,11 @@ onMounted(() => {
                     <div v-if="project.texts.length === 0" class="text-center py-8 text-gray-500">
                         Keine Textblöcke vorhanden
                     </div>
-                    <div v-else class="space-y-3">
+                    <div v-else class="space-y-4 divide-y divide-gray-200">
                         <div
                             v-for="text in project.texts"
                             :key="text.id"
-                            class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
+                            class="flex items-start gap-3 pb-6"
                         >
                             <div class="flex-1">
                                 <span class="text-xs font-medium text-gray-500 uppercase">{{ text.type }}</span>
@@ -324,7 +323,7 @@ onMounted(() => {
                         <h2 class="text-lg font-medium text-gray-900">Bilder ({{ project.images.length }})</h2>
                         <button
                             @click="showGallery = true"
-                            class="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            class="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors"
                         >
                             <PhImage class="h-4 w-4" />
                             Galerie
@@ -337,12 +336,12 @@ onMounted(() => {
                         v-else
                         v-model="project.images"
                         item-key="id"
-                        class="grid grid-cols-4 gap-4"
+                        class="grid grid-cols-8 gap-4"
                         @end="onImagesReorder"
                     >
                         <template #item="{ element: image }">
                             <div class="relative group cursor-move">
-                                <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                                <div class="aspect-square bg-gray-100 rounded-sm overflow-hidden">
                                     <img
                                         :src="getImageUrl(image, 'thumbnail')"
                                         :alt="image.alt || image.title"
@@ -355,16 +354,16 @@ onMounted(() => {
                                 >
                                     <PhStar class="h-3 w-3 text-white" weight="fill" />
                                 </div>
-                                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-sm flex items-center justify-center gap-2">
                                     <button
                                         @click="editingImage = image"
-                                        class="p-2 bg-white rounded-lg text-gray-700 hover:bg-gray-100"
+                                        class="p-2 bg-white rounded-sm text-gray-700 hover:bg-gray-100"
                                     >
                                         <PhPencil class="h-4 w-4" />
                                     </button>
                                     <button
                                         @click="deleteImage(image)"
-                                        class="p-2 bg-white rounded-lg text-red-600 hover:bg-red-50"
+                                        class="p-2 bg-white rounded-sm text-red-600 hover:bg-red-50"
                                     >
                                         <PhTrash class="h-4 w-4" />
                                     </button>

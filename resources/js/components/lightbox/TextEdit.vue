@@ -38,16 +38,6 @@
                     ></textarea>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Custom CSS</label>
-                    <input
-                        v-model="form.custom_css"
-                        type="text"
-                        class="w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-black transition-colors rounded-sm font-mono"
-                        placeholder="z.B. top: 10%; left: 20%;"
-                    />
-                    <p class="mt-1 text-xs text-gray-400">CSS für Positionierung im Layout</p>
-                </div>
             </div>
 
             <div class="p-4 border-t border-gray-200 flex gap-3 justify-end">

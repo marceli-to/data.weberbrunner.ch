@@ -66,7 +66,7 @@ class ProjectController extends Controller
         }
 
         $perPage = $request->input('per_page', 25);
-        $projects = $query->orderBy('menu_order')->paginate($perPage);
+        $projects = $query->orderBy('year', 'desc')->paginate($perPage);
 
         return response()->json($projects);
     }
