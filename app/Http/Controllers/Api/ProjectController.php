@@ -61,9 +61,13 @@ class ProjectController extends Controller
             $query->where('publish_status', $request->publish_status);
         }
 
-        // Search by title
+        // Search by title or number
         if ($request->has('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%');
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('number', 'like', '%' . $search . '%');
+            });
         }
 
         // Sorting
