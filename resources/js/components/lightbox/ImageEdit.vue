@@ -21,7 +21,7 @@
                 <div class="grid grid-cols-2 gap-6">
                     <!-- Image Preview -->
                     <div>
-                        <div class="aspect-square bg-gray-100 overflow-hidden">
+                        <div class="aspect-square bg-gray-50 flex items-start overflow-hidden">
                             <img
                                 :src="getImageUrl()"
                                 :alt="form.alt || image.filename"
@@ -38,7 +38,7 @@
                             <input
                                 v-model="form.title"
                                 type="text"
-                                class="w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-black transition-colors rounded-sm"
+                                class="w-full border border-gray-200 px-3 py-2 text-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300 transition-colors rounded-sm"
                             />
                         </div>
 
@@ -47,7 +47,7 @@
                             <input
                                 v-model="form.alt"
                                 type="text"
-                                class="w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-black transition-colors rounded-sm"
+                                class="w-full border border-gray-200 px-3 py-2 text-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300 transition-colors rounded-sm"
                             />
                             <p class="mt-1 text-xs text-gray-400">Beschreibung für Screenreader</p>
                         </div>
@@ -57,7 +57,7 @@
                             <textarea
                                 v-model="form.caption"
                                 rows="3"
-                                class="w-full border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-black transition-colors rounded-sm resize-y"
+                                class="w-full border border-gray-200 px-3 py-2 text-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300 transition-colors rounded-sm resize-y"
                             ></textarea>
                         </div>
 
@@ -68,9 +68,8 @@
                                     type="checkbox"
                                     class="w-[0.875rem] h-[0.875rem] cursor-pointer accent-black"
                                 />
-                                <span class="flex items-center gap-2 text-sm text-gray-700">
-                                    <PhStar class="w-4 h-4" :weight="form.is_featured ? 'fill' : 'regular'" />
-                                    Als Hauptbild verwenden
+                                <span class="flex items-center gap-1 text-sm text-gray-700">
+                                    als Hauptbild verwenden
                                 </span>
                             </label>
                         </div>

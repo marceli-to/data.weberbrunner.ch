@@ -100,7 +100,7 @@ onMounted(fetchCategory);
         </div>
 
         <div v-else class="max-w-xl">
-            <div class="bg-gray-50 p-4 pt-2 rounded-sm">
+            <div class="bg-gray-50/80 p-4 pt-2 rounded-sm">
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
@@ -108,7 +108,7 @@ onMounted(fetchCategory);
                             v-model="category.name"
                             @blur="!category.slug && generateSlug()"
                             type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                             placeholder="z.B. Architektur"
                         />
                     </div>
@@ -118,7 +118,7 @@ onMounted(fetchCategory);
                             <input
                                 v-model="category.slug"
                                 type="text"
-                                class="flex-1 px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                class="flex-1 px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                                 placeholder="z.B. architektur"
                             />
                             <button

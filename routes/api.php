@@ -19,6 +19,7 @@ Route::put('/projects/reorder', [ProjectController::class, 'reorder']);
 // Project Texts
 Route::get('/projects/{project}/texts', [ProjectController::class, 'texts']);
 Route::post('/projects/{project}/texts', [ProjectController::class, 'storeText']);
+Route::put('/projects/{project}/texts/reorder', [ProjectController::class, 'reorderTexts']);
 Route::put('/projects/{project}/texts/{text}', [ProjectController::class, 'updateText']);
 Route::delete('/projects/{project}/texts/{text}', [ProjectController::class, 'destroyText']);
 
@@ -27,6 +28,13 @@ Route::get('/projects/{project}/images', [ProjectController::class, 'images']);
 Route::put('/projects/{project}/images/{image}', [ProjectController::class, 'updateImage']);
 Route::delete('/projects/{project}/images/{image}', [ProjectController::class, 'destroyImage']);
 Route::put('/projects/{project}/images/reorder', [ProjectController::class, 'reorderImages']);
+
+// Project Attributes
+Route::get('/projects/{project}/attributes', [ProjectController::class, 'attributes']);
+Route::post('/projects/{project}/attributes', [ProjectController::class, 'storeAttribute']);
+Route::put('/projects/{project}/attributes/reorder', [ProjectController::class, 'reorderAttributes']);
+Route::put('/projects/{project}/attributes/{attribute}', [ProjectController::class, 'updateAttribute']);
+Route::delete('/projects/{project}/attributes/{attribute}', [ProjectController::class, 'destroyAttribute']);
 
 // Categories
 Route::get('/categories', [CategoryController::class, 'index']);

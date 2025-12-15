@@ -28,6 +28,7 @@ const saving = ref(false);
 
 const editingImage = ref(null);
 const editingText = ref(null);
+const editingAttribute = ref(null);
 const showGallery = ref(false);
 
 const fetchProject = async () => {
@@ -57,6 +58,7 @@ const saveProject = async () => {
     saving.value = true;
     try {
         const data = {
+            number: project.value.number,
             title: project.value.title,
             slug: project.value.slug,
             year: project.value.year,
@@ -130,6 +132,18 @@ const deleteText = async (text) => {
     }
 };
 
+const onTextsReorder = async () => {
+    try {
+        const reordered = project.value.texts.map((text, index) => ({
+            id: text.id,
+            position: index
+        }));
+        await axios.put(`/api/projects/${project.value.id}/texts/reorder`, { texts: reordered });
+    } catch (error) {
+        console.error('Error reordering texts:', error);
+    }
+};
+
 // Images
 const saveImage = async (image) => {
     try {
@@ -186,6 +200,60 @@ const getImageUrl = (image, size = 'medium') => {
     return `/storage/uploads/${image.filename}`;
 };
 
+// Attributes
+const addAttribute = () => {
+    editingAttribute.value = { id: null, label: '', description: '' };
+};
+
+const saveAttribute = async (attribute) => {
+    try {
+        if (attribute.id) {
+            // Update existing
+            await axios.put(`/api/projects/${project.value.id}/attributes/${attribute.id}`, attribute);
+            const index = project.value.attributes.findIndex(a => a.id === attribute.id);
+            if (index > -1) {
+                project.value.attributes[index] = attribute;
+            }
+        } else {
+            // Create new
+            const response = await axios.post(`/api/projects/${project.value.id}/attributes`, {
+                label: attribute.label,
+                description: attribute.description
+            });
+            project.value.attributes.push(response.data);
+        }
+        editingAttribute.value = null;
+        showToast('Attribut gespeichert', 'success');
+    } catch (error) {
+        console.error('Error saving attribute:', error);
+        showToast('Fehler beim Speichern', 'error');
+    }
+};
+
+const deleteAttribute = async (attribute) => {
+    if (!confirm('Attribut wirklich löschen?')) return;
+    try {
+        await axios.delete(`/api/projects/${project.value.id}/attributes/${attribute.id}`);
+        project.value.attributes = project.value.attributes.filter(a => a.id !== attribute.id);
+        showToast('Attribut gelöscht', 'success');
+    } catch (error) {
+        console.error('Error deleting attribute:', error);
+        showToast('Fehler beim Löschen', 'error');
+    }
+};
+
+const onAttributesReorder = async () => {
+    try {
+        const reordered = project.value.attributes.map((attr, index) => ({
+            id: attr.id,
+            position: index
+        }));
+        await axios.put(`/api/projects/${project.value.id}/attributes/reorder`, { attributes: reordered });
+    } catch (error) {
+        console.error('Error reordering attributes:', error);
+    }
+};
+
 onMounted(() => {
     fetchProject();
     fetchCategories();
@@ -223,15 +291,23 @@ onMounted(() => {
             <!-- Main Content -->
             <div class="col-span-2 space-y-12">
                 <!-- Basic Info -->
-                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
+                <div class="bg-gray-50/80 p-4 pt-2 rounded-sm">
                     <h2 class="text-lg font-medium text-gray-900 mb-4">Daten</h2>
                     <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nummer</label>
+                            <input
+                                v-model="project.number"
+                                type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+                            />
+                        </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Titel</label>
                             <input
                                 v-model="project.title"
                                 type="text"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                             />
                         </div>
                         <div>
@@ -239,7 +315,7 @@ onMounted(() => {
                             <input
                                 v-model="project.slug"
                                 type="text"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                             />
                         </div>
                         <div class="grid grid-cols-2 gap-4">
@@ -249,7 +325,7 @@ onMounted(() => {
                                     v-model="project.year"
                                     type="text"
                                     maxlength="4"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                                 />
                             </div>
                             <div>
@@ -257,7 +333,7 @@ onMounted(() => {
                                 <input
                                     v-model="project.status"
                                     type="text"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                                 />
                             </div>
                         </div>
@@ -266,14 +342,65 @@ onMounted(() => {
                             <textarea
                                 v-model="project.steckbrief"
                                 rows="6"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                             ></textarea>
                         </div>
                     </div>
                 </div>
 
+                <!-- Attributes -->
+                <div class="bg-gray-50/80 p-4 pt-2 rounded-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-medium text-gray-900">Stammdaten</h2>
+                        <button
+                            @click="addAttribute"
+                            class="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors"
+                        >
+                            <PhPlus class="h-4 w-4" />
+                            Hinzufügen
+                        </button>
+                    </div>
+                    <div v-if="!project.attributes || project.attributes.length === 0" class="text-center py-8 text-gray-500">
+                        Keine Stammdaten vorhanden
+                    </div>
+                    <draggable
+                        v-else
+                        v-model="project.attributes"
+                        item-key="id"
+                        handle=".drag-handle"
+                        class="space-y-2"
+                        @end="onAttributesReorder"
+                    >
+                        <template #item="{ element: attribute }">
+                            <div class="flex items-center gap-3 bg-white p-3 rounded-sm border border-gray-200">
+                                <div class="drag-handle cursor-move text-gray-400 hover:text-gray-600">
+                                    <PhDotsSixVertical class="h-5 w-5" />
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm font-medium text-gray-900">{{ attribute.label || '(Kein Label)' }}</div>
+                                    <div class="text-sm text-gray-500 truncate">{{ attribute.description || '(Keine Beschreibung)' }}</div>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <button
+                                        @click="editingAttribute = { ...attribute }"
+                                        class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                                    >
+                                        <PhPencil class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        @click="deleteAttribute(attribute)"
+                                        class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-gray-100 rounded transition-colors"
+                                    >
+                                        <PhTrash class="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </draggable>
+                </div>
+
                 <!-- Text Blocks -->
-                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
+                <div class="bg-gray-50/80 p-4 pt-2 rounded-sm">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-medium text-gray-900">Textblöcke</h2>
                         <button
@@ -287,38 +414,43 @@ onMounted(() => {
                     <div v-if="project.texts.length === 0" class="text-center py-8 text-gray-500">
                         Keine Textblöcke vorhanden
                     </div>
-                    <div v-else class="space-y-4 divide-y divide-gray-200">
-                        <div
-                            v-for="text in project.texts"
-                            :key="text.id"
-                            class="flex items-start gap-3 pb-6"
-                        >
-                            <div class="flex-1">
-                                <span class="text-xs font-medium text-gray-500 uppercase">{{ text.type }}</span>
-                                <p class="text-sm text-gray-900 mt-1 line-clamp-2">
-                                    {{ text.text || '(Leer)' }}
-                                </p>
+                    <draggable
+                        v-else
+                        v-model="project.texts"
+                        item-key="id"
+                        handle=".drag-handle"
+                        class="space-y-2"
+                        @end="onTextsReorder"
+                    >
+                        <template #item="{ element: text }">
+                            <div class="flex items-center gap-3 bg-white p-3 rounded-sm border border-gray-200">
+                                <div class="drag-handle cursor-move text-gray-400 hover:text-gray-600">
+                                    <PhDotsSixVertical class="h-5 w-5" />
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm text-gray-900 line-clamp-2 prose prose-sm" v-html="text.text || '(Leer)'"></div>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <button
+                                        @click="editingText = text"
+                                        class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                                    >
+                                        <PhPencil class="h-4 w-4" />
+                                    </button>
+                                    <button
+                                        @click="deleteText(text)"
+                                        class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-gray-100 rounded transition-colors"
+                                    >
+                                        <PhTrash class="h-4 w-4" />
+                                    </button>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-1">
-                                <button
-                                    @click="editingText = text"
-                                    class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-white rounded transition-colors"
-                                >
-                                    <PhPencil class="h-4 w-4" />
-                                </button>
-                                <button
-                                    @click="deleteText(text)"
-                                    class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-white rounded transition-colors"
-                                >
-                                    <PhTrash class="h-4 w-4" />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                        </template>
+                    </draggable>
                 </div>
 
                 <!-- Images -->
-                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
+                <div class="bg-gray-50/80 p-4 pt-2 rounded-sm">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-medium text-gray-900">Bilder ({{ project.images.length }})</h2>
                         <button
@@ -377,7 +509,7 @@ onMounted(() => {
             <!-- Sidebar -->
             <div class="space-y-6">
                 <!-- Publish Status -->
-                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
+                <div class="bg-gray-50/80 p-4 pt-2 rounded-sm">
                     <h2 class="text-lg font-medium text-gray-900 mb-4">Veröffentlichung</h2>
                     <div class="space-y-2">
                         <label class="flex items-center gap-3 cursor-pointer">
@@ -385,7 +517,7 @@ onMounted(() => {
                                 v-model="project.publish_status"
                                 type="radio"
                                 value="publish"
-                                class="w-4 h-4 text-black focus:ring-black"
+                                class="w-4 h-4 accent-black focus:ring-gray-300"
                             />
                             <span class="text-sm text-gray-900">Veröffentlicht</span>
                         </label>
@@ -394,7 +526,7 @@ onMounted(() => {
                                 v-model="project.publish_status"
                                 type="radio"
                                 value="draft"
-                                class="w-4 h-4 text-black focus:ring-black"
+                                class="w-4 h-4 accent-black focus:ring-gray-300"
                             />
                             <span class="text-sm text-gray-900">Entwurf</span>
                         </label>
@@ -402,7 +534,7 @@ onMounted(() => {
                 </div>
 
                 <!-- Categories -->
-                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
+                <div class="bg-gray-50/80 p-4 pt-2 rounded-sm">
                     <h2 class="text-lg font-medium text-gray-900 mb-4">Kategorien</h2>
                     <div class="space-y-2">
                         <label
@@ -414,7 +546,7 @@ onMounted(() => {
                                 type="checkbox"
                                 :checked="isCategorySelected(category)"
                                 @change="toggleCategory(category)"
-                                class="w-4 h-4 text-black focus:ring-black rounded"
+                                class="w-4 h-4 accent-black focus:ring-gray-300 rounded"
                             />
                             <span class="text-sm text-gray-900">{{ category.name }}</span>
                         </label>
@@ -444,5 +576,48 @@ onMounted(() => {
             :images="project.images"
             @close="showGallery = false"
         />
+
+        <!-- Attribute Edit Modal -->
+        <div
+            v-if="editingAttribute"
+            class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            @click.self="editingAttribute = null"
+        >
+            <div class="bg-white rounded-sm p-6 w-full max-w-md">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Erfassen/Bearbeiten</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Label</label>
+                        <input
+                            v-model="editingAttribute.label"
+                            type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Beschreibung</label>
+                        <textarea
+                            v-model="editingAttribute.description"
+                            rows="3"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
+                        ></textarea>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button
+                        @click="editingAttribute = null"
+                        class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-sm transition-colors"
+                    >
+                        Abbrechen
+                    </button>
+                    <button
+                        @click="saveAttribute(editingAttribute)"
+                        class="px-4 py-2 text-sm bg-black text-white rounded-sm hover:bg-gray-800 transition-colors"
+                    >
+                        Speichern
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>

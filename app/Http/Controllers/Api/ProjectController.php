@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\ProjectAttribute;
 use App\Models\ProjectImage;
 use App\Models\ProjectText;
 use Illuminate\Http\JsonResponse;
@@ -65,8 +66,19 @@ class ProjectController extends Controller
             $query->where('title', 'like', '%' . $request->search . '%');
         }
 
+        // Sorting
+        $sortBy = $request->input('sort_by');
+        $sortDirection = $request->input('sort_direction', 'asc');
+        $allowedSortColumns = ['number', 'title', 'year'];
+
+        if ($sortBy && in_array($sortBy, $allowedSortColumns)) {
+            $query->orderBy($sortBy, $sortDirection === 'desc' ? 'desc' : 'asc');
+        } else {
+            $query->orderBy('year', 'desc');
+        }
+
         $perPage = $request->input('per_page', 25);
-        $projects = $query->orderBy('year', 'desc')->paginate($perPage);
+        $projects = $query->paginate($perPage);
 
         return response()->json($projects);
     }
@@ -80,6 +92,7 @@ class ProjectController extends Controller
             'contentBlockImages',
             'data',
             'categories',
+            'attributes',
         ]);
 
         return response()->json($project);
@@ -88,6 +101,7 @@ class ProjectController extends Controller
     public function update(Request $request, Project $project): JsonResponse
     {
         $validated = $request->validate([
+            'number' => 'sometimes|nullable|string|max:255',
             'title' => 'sometimes|string|max:255',
             'slug' => 'sometimes|string|max:255|unique:projects,slug,' . $project->id,
             'year' => 'sometimes|nullable|string|max:4',
@@ -191,6 +205,23 @@ class ProjectController extends Controller
         return response()->json(['message' => 'Textblock gelöscht']);
     }
 
+    public function reorderTexts(Request $request, Project $project): JsonResponse
+    {
+        $validated = $request->validate([
+            'texts' => 'required|array',
+            'texts.*.id' => 'required|integer|exists:project_texts,id',
+            'texts.*.position' => 'required|integer',
+        ]);
+
+        foreach ($validated['texts'] as $item) {
+            ProjectText::where('id', $item['id'])
+                ->where('project_id', $project->id)
+                ->update(['position' => $item['position']]);
+        }
+
+        return response()->json(['message' => 'Reihenfolge aktualisiert']);
+    }
+
     // Nested: Images
     public function images(Project $project): JsonResponse
     {
@@ -244,6 +275,74 @@ class ProjectController extends Controller
 
         foreach ($validated['images'] as $item) {
             ProjectImage::where('id', $item['id'])
+                ->where('project_id', $project->id)
+                ->update(['position' => $item['position']]);
+        }
+
+        return response()->json(['message' => 'Reihenfolge aktualisiert']);
+    }
+
+    // Nested: Attributes
+    public function attributes(Project $project): JsonResponse
+    {
+        return response()->json($project->attributes);
+    }
+
+    public function storeAttribute(Request $request, Project $project): JsonResponse
+    {
+        $validated = $request->validate([
+            'label' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'position' => 'integer',
+        ]);
+
+        if (!isset($validated['position'])) {
+            $validated['position'] = $project->attributes()->max('position') + 1;
+        }
+
+        $attribute = $project->attributes()->create($validated);
+
+        return response()->json($attribute, 201);
+    }
+
+    public function updateAttribute(Request $request, Project $project, ProjectAttribute $attribute): JsonResponse
+    {
+        if ($attribute->project_id !== $project->id) {
+            return response()->json(['message' => 'Attribut gehört nicht zu diesem Projekt'], 403);
+        }
+
+        $validated = $request->validate([
+            'label' => 'sometimes|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'position' => 'sometimes|integer',
+        ]);
+
+        $attribute->update($validated);
+
+        return response()->json($attribute);
+    }
+
+    public function destroyAttribute(Project $project, ProjectAttribute $attribute): JsonResponse
+    {
+        if ($attribute->project_id !== $project->id) {
+            return response()->json(['message' => 'Attribut gehört nicht zu diesem Projekt'], 403);
+        }
+
+        $attribute->delete();
+
+        return response()->json(['message' => 'Attribut gelöscht']);
+    }
+
+    public function reorderAttributes(Request $request, Project $project): JsonResponse
+    {
+        $validated = $request->validate([
+            'attributes' => 'required|array',
+            'attributes.*.id' => 'required|integer|exists:project_attributes,id',
+            'attributes.*.position' => 'required|integer',
+        ]);
+
+        foreach ($validated['attributes'] as $item) {
+            ProjectAttribute::where('id', $item['id'])
                 ->where('project_id', $project->id)
                 ->update(['position' => $item['position']]);
         }

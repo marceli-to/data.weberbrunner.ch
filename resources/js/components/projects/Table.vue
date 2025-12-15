@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import { PhPencilSimple, PhTrash, PhFunnelSimple, PhImage, PhCaretLeft, PhCaretRight, PhMagnifyingGlass, PhCommand } from '@phosphor-icons/vue';
+import { PhPencilSimple, PhTrash, PhFunnelSimple, PhImage, PhCaretLeft, PhCaretRight, PhMagnifyingGlass, PhCommand, PhCaretUp, PhCaretDown } from '@phosphor-icons/vue';
 import Filters from '../lightbox/Filters.vue';
 
 const router = useRouter();
@@ -19,6 +19,7 @@ const isSearchFocused = ref(false);
 // Load filters from localStorage or use defaults
 const storedFilters = localStorage.getItem('projectFilters');
 const storedPage = localStorage.getItem('projectPage');
+const storedSort = localStorage.getItem('projectSort');
 
 const filters = ref(storedFilters ? JSON.parse(storedFilters) : {
     category: '',
@@ -27,11 +28,17 @@ const filters = ref(storedFilters ? JSON.parse(storedFilters) : {
     publish_status: ''
 });
 
+// Sorting
+const sort = ref(storedSort ? JSON.parse(storedSort) : {
+    by: '',
+    direction: 'asc'
+});
+
 // Pagination
 const pagination = ref({
     currentPage: storedPage ? parseInt(storedPage) : 1,
     lastPage: 1,
-    perPage: 25,
+    perPage: 100,
     total: 0
 });
 
@@ -39,6 +46,7 @@ const pagination = ref({
 const saveFiltersToStorage = () => {
     localStorage.setItem('projectFilters', JSON.stringify(filters.value));
     localStorage.setItem('projectPage', pagination.value.currentPage.toString());
+    localStorage.setItem('projectSort', JSON.stringify(sort.value));
 };
 
 const fetchProjects = async (page = 1) => {
@@ -52,6 +60,10 @@ const fetchProjects = async (page = 1) => {
         if (filters.value.year) params.append('year', filters.value.year);
         if (filters.value.publish_status) params.append('publish_status', filters.value.publish_status);
         if (searchQuery.value) params.append('search', searchQuery.value);
+        if (sort.value.by) {
+            params.append('sort_by', sort.value.by);
+            params.append('sort_direction', sort.value.direction);
+        }
 
         const response = await axios.get(`/api/projects?${params.toString()}`);
         projects.value = response.data.data;
@@ -133,6 +145,16 @@ const clearFilters = () => {
 const hasActiveFilters = computed(() => {
     return Object.values(filters.value).some(v => v !== '');
 });
+
+const toggleSort = (column) => {
+    if (sort.value.by === column) {
+        sort.value.direction = sort.value.direction === 'asc' ? 'desc' : 'asc';
+    } else {
+        sort.value.by = column;
+        sort.value.direction = 'asc';
+    }
+    fetchProjects(1);
+};
 
 const activeFilterCount = computed(() => {
     return Object.values(filters.value).filter(v => v !== '').length;
@@ -217,7 +239,7 @@ onUnmounted(() => {
                         @blur="isSearchFocused = false"
                         type="text"
                         placeholder="Suchen..."
-                        class="w-64 h-[38px] pl-9 pr-16 text-sm border border-gray-300 rounded-sm focus:outline-none focus:border-black transition-colors"
+                        class="w-64 h-[38px] pl-9 pr-16 text-sm border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300 transition-colors"
                     />
                     <div 
                         v-if="!isSearchFocused && !searchQuery"
@@ -252,8 +274,27 @@ onUnmounted(() => {
                 <thead>
                     <tr class="border-b border-gray-200">
                         <th class="py-3 pr-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-16"></th>
-                        <th class="py-3 px-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titel</th>
-                        <th class="py-3 px-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jahr</th>
+                        <th class="py-3 px-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <button @click="toggleSort('number')" class="flex items-center gap-1 uppercase hover:text-gray-900 cursor-pointer">
+                                Nummer
+                                <PhCaretUp v-if="sort.by === 'number' && sort.direction === 'asc'" class="w-3 h-3" />
+                                <PhCaretDown v-else-if="sort.by === 'number' && sort.direction === 'desc'" class="w-3 h-3" />
+                            </button>
+                        </th>
+                        <th class="py-3 px-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <button @click="toggleSort('title')" class="flex items-center gap-1 uppercase hover:text-gray-900 cursor-pointer">
+                                Titel
+                                <PhCaretUp v-if="sort.by === 'title' && sort.direction === 'asc'" class="w-3 h-3" />
+                                <PhCaretDown v-else-if="sort.by === 'title' && sort.direction === 'desc'" class="w-3 h-3" />
+                            </button>
+                        </th>
+                        <th class="py-3 px-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <button @click="toggleSort('year')" class="flex items-center gap-1 uppercase hover:text-gray-900 cursor-pointer">
+                                Jahr
+                                <PhCaretUp v-if="sort.by === 'year' && sort.direction === 'asc'" class="w-3 h-3" />
+                                <PhCaretDown v-else-if="sort.by === 'year' && sort.direction === 'desc'" class="w-3 h-3" />
+                            </button>
+                        </th>
                         <th class="py-3 px-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th class="py-3 px-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kategorien</th>
                         <th class="py-3 pl-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
@@ -277,6 +318,9 @@ onUnmounted(() => {
                                     <PhImage class="w-5 h-5 text-gray-300" />
                                 </div>
                             </div>
+                        </td>
+                        <td class="py-4 px-2 text-sm text-gray-500">
+                            {{ project.number || '—' }}
                         </td>
                         <td class="py-4 px-2">
                             <div class="text-sm font-medium text-black">

@@ -15,6 +15,7 @@ class Project extends Model
 
     protected $fillable = [
         'wp_id',
+        'number',
         'title',
         'slug',
         'year',
@@ -51,6 +52,11 @@ class Project extends Model
     public function data(): HasMany
     {
         return $this->hasMany(ProjectData::class);
+    }
+
+    public function attributes(): HasMany
+    {
+        return $this->hasMany(ProjectAttribute::class)->orderBy('position');
     }
 
     public function categories(): BelongsToMany

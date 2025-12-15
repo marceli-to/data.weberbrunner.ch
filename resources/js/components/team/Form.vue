@@ -112,7 +112,7 @@ onMounted(() => {
             <!-- Main Content -->
             <div class="col-span-2 space-y-12">
                 <!-- Basic Info -->
-                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
+                <div class="bg-gray-50/80 p-4 pt-2 rounded-sm">
                     <h2 class="text-lg font-medium text-gray-900 mb-4">Daten</h2>
                     <div class="space-y-4">
                         <div>
@@ -121,7 +121,7 @@ onMounted(() => {
                                 v-model="member.name"
                                 @blur="generateSlug"
                                 type="text"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                             />
                         </div>
                         <div>
@@ -129,7 +129,7 @@ onMounted(() => {
                             <input
                                 v-model="member.slug"
                                 type="text"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                             />
                         </div>
                         <div>
@@ -138,7 +138,7 @@ onMounted(() => {
                                 v-model="member.title"
                                 type="text"
                                 placeholder="z.B. M. Sc. Arch ETH"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                             />
                         </div>
                         <div class="grid grid-cols-2 gap-4">
@@ -147,7 +147,7 @@ onMounted(() => {
                                 <input
                                     v-model="member.email"
                                     type="email"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                                 />
                             </div>
                             <div>
@@ -157,7 +157,7 @@ onMounted(() => {
                                     type="number"
                                     min="1900"
                                     max="2100"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                                 />
                             </div>
                         </div>
@@ -167,7 +167,7 @@ onMounted(() => {
                                 v-model="member.role"
                                 type="text"
                                 placeholder="z.B. Mitglied der Geschäftsleitung"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                             />
                         </div>
                         <div>
@@ -176,14 +176,14 @@ onMounted(() => {
                                 v-model="member.profile_url"
                                 type="url"
                                 placeholder="https://..."
-                                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                             />
                         </div>
                     </div>
                 </div>
 
                 <!-- Image -->
-                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
+                <div class="bg-gray-50/80 p-4 pt-2 rounded-sm">
                     <h2 class="text-lg font-medium text-gray-900 mb-4">Bild</h2>
                     <div class="space-y-4">
                         <div>
@@ -192,7 +192,7 @@ onMounted(() => {
                                 v-model="member.image"
                                 type="text"
                                 placeholder="https://..."
-                                class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-1 focus:ring-black focus:border-black"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300"
                             />
                         </div>
                         <div v-if="member.image" class="mt-4">
@@ -214,7 +214,7 @@ onMounted(() => {
             <!-- Sidebar -->
             <div class="space-y-6">
                 <!-- Publish Status -->
-                <div class="bg-gray-50 p-4 pt-2 rounded-sm">
+                <div class="bg-gray-50/80 p-4 pt-2 rounded-sm">
                     <h2 class="text-lg font-medium text-gray-900 mb-4">Status</h2>
                     <div class="space-y-2">
                         <label class="flex items-center gap-3 cursor-pointer">
@@ -222,7 +222,7 @@ onMounted(() => {
                                 v-model="member.publish"
                                 type="radio"
                                 :value="true"
-                                class="w-4 h-4 text-black focus:ring-black"
+                                class="w-4 h-4 accent-black focus:ring-gray-300"
                             />
                             <span class="text-sm text-gray-900">Aktiv</span>
                         </label>
@@ -231,7 +231,7 @@ onMounted(() => {
                                 v-model="member.publish"
                                 type="radio"
                                 :value="false"
-                                class="w-4 h-4 text-black focus:ring-black"
+                                class="w-4 h-4 accent-black focus:ring-gray-300"
                             />
                             <span class="text-sm text-gray-900">Entwurf</span>
                         </label>

@@ -132,7 +132,7 @@ onUnmounted(() => {
                         @blur="isSearchFocused = false"
                         type="text"
                         placeholder="Suchen..."
-                        class="w-64 h-[38px] pl-9 pr-16 text-sm border border-gray-300 rounded-sm focus:outline-none focus:border-black transition-colors"
+                        class="w-64 h-[38px] pl-9 pr-16 text-sm border border-gray-300 rounded-sm outline-0 focus:ring-1 focus:ring-gray-300 focus:border-gray-300 transition-colors"
                     />
                     <div
                         v-if="!isSearchFocused && !searchQuery"

@@ -18,6 +18,9 @@
     },
     "dependencies": {
         "@phosphor-icons/vue": "^2.2.1",
+        "@tiptap/extension-link": "^3.13.0",
+        "@tiptap/starter-kit": "^3.13.0",
+        "@tiptap/vue-3": "^3.13.0",
         "vue-router": "^4.6.3",
         "vuedraggable": "^4.1.0"
     }
