@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\TeamMemberController;
 use App\Http\Controllers\Api\AwardController;
 use App\Http\Controllers\Api\JuryController;
 use App\Http\Controllers\Api\LectureController;
+use App\Http\Controllers\Api\RawDataController;
 use Illuminate\Support\Facades\Route;
 
 // Projects
@@ -78,3 +79,21 @@ Route::post('/lectures', [LectureController::class, 'store']);
 Route::put('/lectures/reorder', [LectureController::class, 'reorder']);
 Route::put('/lectures/{lecture}', [LectureController::class, 'update']);
 Route::delete('/lectures/{lecture}', [LectureController::class, 'destroy']);
+
+// Raw Data
+Route::get('/raw-data', [RawDataController::class, 'index']);
+Route::get('/raw-data/{rawData}', [RawDataController::class, 'show']);
+Route::put('/raw-data/{rawData}', [RawDataController::class, 'update']);
+Route::delete('/raw-data/{rawData}', [RawDataController::class, 'destroy']);
+
+// Raw Data Meta
+Route::post('/raw-data/{rawData}/meta', [RawDataController::class, 'storeMeta']);
+Route::put('/raw-data/{rawData}/meta/reorder', [RawDataController::class, 'reorderMeta']);
+Route::put('/raw-data/{rawData}/meta/{meta}', [RawDataController::class, 'updateMeta']);
+Route::delete('/raw-data/{rawData}/meta/{meta}', [RawDataController::class, 'destroyMeta']);
+
+// Raw Data Attributes
+Route::post('/raw-data/{rawData}/attributes', [RawDataController::class, 'storeAttribute']);
+Route::put('/raw-data/{rawData}/attributes/reorder', [RawDataController::class, 'reorderAttributes']);
+Route::put('/raw-data/{rawData}/attributes/{attribute}', [RawDataController::class, 'updateAttribute']);
+Route::delete('/raw-data/{rawData}/attributes/{attribute}', [RawDataController::class, 'destroyAttribute']);

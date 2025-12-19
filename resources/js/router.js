@@ -11,6 +11,8 @@ import JuryTable from './components/jury/Table.vue';
 import JuryForm from './components/jury/Form.vue';
 import LecturesTable from './components/lectures/Table.vue';
 import LecturesForm from './components/lectures/Form.vue';
+import RawDataTable from './components/rawdata/Table.vue';
+import RawDataForm from './components/rawdata/Form.vue';
 
 const routes = [
     {
@@ -106,6 +108,17 @@ const routes = [
         path: '/lectures/:id/edit',
         name: 'lectures.edit',
         component: LecturesForm,
+        props: true
+    },
+    {
+        path: '/rawdata',
+        name: 'rawdata.index',
+        component: RawDataTable
+    },
+    {
+        path: '/rawdata/:id/edit',
+        name: 'rawdata.edit',
+        component: RawDataForm,
         props: true
     },
 ];

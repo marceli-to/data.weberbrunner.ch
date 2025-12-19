@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class ParseTeamFromHtml extends Command
 {
-    protected $signature = 'parse:team {--file=content.html : The HTML file to parse}';
+    protected $signature = 'parse:team {--file=storage/app/public/import/team.html : The HTML file to parse}';
     protected $description = 'Parse team members from HTML and export to individual JSON files';
 
     public function handle()

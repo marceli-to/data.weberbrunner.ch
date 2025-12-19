@@ -72,6 +72,16 @@
                         Vorträge
                     </router-link>
                 </li>
+                <li>
+                    <router-link
+                        :to="{ name: 'rawdata.index' }"
+                        class="flex items-center gap-3 p-4 text-sm transition-colors"
+                        :class="isActive('rawdata') ? 'bg-gray-100' : 'text-gray-700 hover:bg-gray-200'"
+                    >
+                        <PhDatabase class="w-5 h-5" />
+                        Rohdaten
+                    </router-link>
+                </li>
             </ul>
         </nav>
 
@@ -90,7 +100,7 @@
 
 <script setup>
 import { useRoute } from 'vue-router';
-import { PhFolders, PhTag, PhSignOut, PhUsers, PhTrophy, PhGavel, PhMicrophone } from '@phosphor-icons/vue';
+import { PhFolders, PhTag, PhSignOut, PhUsers, PhTrophy, PhGavel, PhMicrophone, PhDatabase } from '@phosphor-icons/vue';
 
 const route = useRoute();
 
